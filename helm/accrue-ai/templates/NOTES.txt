@@ -1,0 +1,14 @@
+Accrue AI has been deployed!
+
+Get the application URLs:
+{{- if .Values.ingress.enabled }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ (index .Values.ingress.hosts 0).host }}
+{{- else }}
+  export WEB_POD=$(kubectl get pods -l "app.kubernetes.io/name={{ include "accrue-ai.name" . }},app.kubernetes.io/component=web" -o jsonpath="{.items[0].metadata.name}")
+  kubectl port-forward $WEB_POD 3000:3000
+  echo "Web UI: http://localhost:3000"
+
+  export API_POD=$(kubectl get pods -l "app.kubernetes.io/name={{ include "accrue-ai.name" . }},app.kubernetes.io/component=api" -o jsonpath="{.items[0].metadata.name}")
+  kubectl port-forward $API_POD 3001:3001
+  echo "API: http://localhost:3001"
+{{- end }}

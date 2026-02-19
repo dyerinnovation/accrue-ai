@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  name          String?
+  passwordHash  String
+  teams         TeamMember[]
+  skills        Skill[]
+  apiKeys       ApiKey[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Team {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  members     TeamMember[]
+  skills      Skill[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model TeamMember {
+  id     String   @id @default(cuid())
+  userId String
+  teamId String
+  role   TeamRole @default(MEMBER)
+  user   User     @relation(fields: [userId], references: [id])
+  team   Team     @relation(fields: [teamId], references: [id])
+  @@unique([userId, teamId])
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+model Skill {
+  id            String         @id @default(cuid())
+  name          String
+  slug          String
+  description   String
+  content       String         @db.Text
+  version       Int            @default(1)
+  status        SkillStatus    @default(DRAFT)
+  authorId      String
+  teamId        String?
+  author        User           @relation(fields: [authorId], references: [id])
+  team          Team?          @relation(fields: [teamId], references: [id])
+  versions      SkillVersion[]
+  evals         SkillEval[]
+  tags          String[]
+  isPublic      Boolean        @default(false)
+  metadata      Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  @@unique([slug, teamId])
+}
+
+enum SkillStatus {
+  DRAFT
+  TESTING
+  PUBLISHED
+  ARCHIVED
+}
+
+model SkillVersion {
+  id          String   @id @default(cuid())
+  skillId     String
+  version     Int
+  content     String   @db.Text
+  changelog   String?
+  metrics     Json?
+  skill       Skill    @relation(fields: [skillId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model SkillEval {
+  id          String   @id @default(cuid())
+  skillId     String
+  prompt      String
+  expected    String?
+  assertions  Json
+  files       Json?
+  skill       Skill    @relation(fields: [skillId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model ApiKey {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model WizardSession {
+  id          String   @id @default(cuid())
+  userId      String
+  step        String   @default("capture-intent")
+  state       Json     @default("{}")
+  messages    Json     @default("[]")
+  draftSkill  Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

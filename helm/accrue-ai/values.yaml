@@ -1,0 +1,102 @@
+# Accrue AI Helm Chart Values
+
+replicaCount: 1
+
+api:
+  image:
+    repository: accrue-ai/api
+    tag: latest
+    pullPolicy: IfNotPresent
+  port: 3001
+  replicaCount: 2
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+web:
+  image:
+    repository: accrue-ai/web
+    tag: latest
+    pullPolicy: IfNotPresent
+  port: 3000
+  replicaCount: 2
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+mcpServer:
+  image:
+    repository: accrue-ai/mcp-server
+    tag: latest
+    pullPolicy: IfNotPresent
+  port: 3002
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "250m"
+
+postgresql:
+  enabled: true
+  auth:
+    username: accrue
+    password: accrue
+    database: accrue_ai
+  primary:
+    persistence:
+      size: 10Gi
+
+externalDatabase:
+  host: ""
+  port: 5432
+  user: accrue
+  password: ""
+  database: accrue_ai
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: accrue-ai.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web
+        - path: /api
+          pathType: Prefix
+          service: api
+  tls: []
+
+env:
+  JWT_SECRET: change-me-in-production
+  JWT_EXPIRY: 15m
+  REFRESH_TOKEN_EXPIRY: 7d
+  BETTER_AUTH_SECRET: change-me-in-production
+  CLAUDE_MODEL: claude-sonnet-4-20250514
+  NODE_ENV: production
+
+secrets:
+  ANTHROPIC_API_KEY: ""
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}

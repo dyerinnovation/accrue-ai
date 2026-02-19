@@ -1,0 +1,24 @@
+{
+  "name": "accrue-ai",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "test:ci": "turbo run test -- --run",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "db:generate": "pnpm --filter @accrue-ai/db generate",
+    "db:migrate": "pnpm --filter @accrue-ai/db migrate:dev",
+    "db:seed": "pnpm --filter @accrue-ai/db seed",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.0"
+  }
+}

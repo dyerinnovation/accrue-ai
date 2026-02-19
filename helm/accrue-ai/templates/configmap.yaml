@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "accrue-ai.fullname" . }}-config
+  labels:
+    {{- include "accrue-ai.labels" . | nindent 4 }}
+data:
+  NODE_ENV: {{ .Values.env.NODE_ENV | quote }}
+  JWT_EXPIRY: {{ .Values.env.JWT_EXPIRY | quote }}
+  REFRESH_TOKEN_EXPIRY: {{ .Values.env.REFRESH_TOKEN_EXPIRY | quote }}
+  CLAUDE_MODEL: {{ .Values.env.CLAUDE_MODEL | quote }}
+  API_PORT: {{ .Values.api.port | quote }}
+  WEB_PORT: {{ .Values.web.port | quote }}
+  MCP_SERVER_PORT: {{ .Values.mcpServer.port | quote }}
+  {{- if .Values.postgresql.enabled }}
+  DATABASE_URL: "postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "accrue-ai.fullname" . }}-postgresql:5432/{{ .Values.postgresql.auth.database }}"
+  {{- else }}
+  DATABASE_URL: "postgresql://{{ .Values.externalDatabase.user }}:{{ .Values.externalDatabase.password }}@{{ .Values.externalDatabase.host }}:{{ .Values.externalDatabase.port }}/{{ .Values.externalDatabase.database }}"
+  {{- end }}

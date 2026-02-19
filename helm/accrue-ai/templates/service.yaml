@@ -1,0 +1,19 @@
+{{- range $name, $svc := dict "api" .Values.api "web" .Values.web "mcp-server" .Values.mcpServer }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "accrue-ai.fullname" $ }}-{{ $name }}
+  labels:
+    {{- include "accrue-ai.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ $svc.port }}
+      targetPort: {{ $svc.port }}
+      protocol: TCP
+  selector:
+    {{- include "accrue-ai.selectorLabels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+{{- end }}
