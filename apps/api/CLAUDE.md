@@ -25,8 +25,10 @@ Middleware stack (applied in order in `src/app.ts`):
 - `src/server.ts` — Entry point (starts Express)
 - `src/app.ts` — Express app factory (middleware + routes)
 - `src/routes/index.ts` — Route mounting (`/auth`, `/skills`, `/teams`, `/evals`, `/wizard`, `/health`)
-- `src/config/env.ts` — Zod-validated environment (`getEnv()`)
+- `src/config/env.ts` — Zod-validated environment (`getEnv()`) — includes storage env vars
+- `src/config/storage.ts` — Storage provider singleton (`getStorage()`)
 - `src/middleware/auth.middleware.ts` — JWT verification, `AuthenticatedRequest` type
+- `src/middleware/upload.middleware.ts` — Multer config for multipart file uploads
 
 ## Conventions
 
@@ -55,10 +57,13 @@ pnpm --filter @accrue-ai/api test    # Run vitest
 
 ## Dependencies
 
-`@accrue-ai/db`, `@accrue-ai/shared`, `@accrue-ai/auth`, `@accrue-ai/skill-engine`, `@accrue-ai/claude-client`
+`@accrue-ai/db`, `@accrue-ai/shared`, `@accrue-ai/auth`, `@accrue-ai/skill-engine`, `@accrue-ai/claude-client`, `@accrue-ai/storage`
 
 ## Gotchas
 
 - Error handling uses try/catch in each controller method — no global async wrapper
 - `authMiddleware` attaches `userId` and `userEmail` to the request object
 - Route paths match `API_ROUTES` in `packages/shared/src/constants.ts` — keep them in sync
+- File uploads use `multer` with memory storage (10MB per file, 20 files max)
+- `skill.service.ts` writes skill files to object store and maintains SkillFile DB records
+- Storage provider is a singleton initialized from env vars in `src/config/storage.ts`

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The MCP (Model Context Protocol) server exposes Accrue AI's skill library to AI agents like Claude. It runs over stdio transport and provides four tools for interacting with skills.
+The MCP (Model Context Protocol) server exposes Accrue AI's skill library to AI agents like Claude. It runs over stdio transport and provides six tools for interacting with skills. The server integrates with the object store (MinIO/S3) for reading and writing skill files.
 
 ## Transport
 
@@ -57,6 +57,27 @@ Request iteration on an existing skill.
 
 **Note:** This tool currently returns guidance text only. Full AI-powered iteration requires the web app or API (which have ClaudeClient access).
 
+### `list_skill_files`
+
+List all files belonging to a skill.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `identifier` | string | Yes | Skill ID, slug, or name |
+
+Returns file manifest from the database (SkillFile records). Falls back to listing objects from the object store if no DB records exist.
+
+### `get_skill_file`
+
+Fetch a specific file from a skill.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `identifier` | string | Yes | Skill ID, slug, or name |
+| `path` | string | Yes | Relative file path (e.g., `scripts/run.py`) |
+
+Reads the file from the object store. Returns text content for text files; returns `[binary file]` placeholder for binary content types.
+
 ## Claude Desktop Configuration
 
 Add to `~/.config/claude/claude_desktop_config.json` (or equivalent):
@@ -68,7 +89,12 @@ Add to `~/.config/claude/claude_desktop_config.json` (or equivalent):
       "command": "node",
       "args": ["/path/to/accrue-ai/apps/mcp-server/dist/index.js"],
       "env": {
-        "DATABASE_URL": "postgresql://accrue:accrue@localhost:5432/accrue_ai"
+        "DATABASE_URL": "postgresql://accrue:accrue@localhost:5432/accrue_ai",
+        "STORAGE_PROVIDER": "minio",
+        "MINIO_ENDPOINT": "http://localhost:9000",
+        "MINIO_ACCESS_KEY": "accrue",
+        "MINIO_SECRET_KEY": "accrue123",
+        "STORAGE_BUCKET": "accrue-skills"
       }
     }
   }
@@ -81,6 +107,8 @@ Build the server first: `pnpm --filter @accrue-ai/mcp-server build`
 
 - Single-file implementation at `apps/mcp-server/src/index.ts`
 - Direct Prisma queries (no API intermediary or repository layer)
+- Storage provider initialized at startup from environment variables
 - Zod schemas defined inline in `server.tool()` calls
 - `console.error` for logging (stdout is reserved for MCP protocol)
-- Dynamic imports for `@accrue-ai/skill-engine` and `@accrue-ai/shared` in the `create_skill` tool
+- `get_skill` reads SKILL.md from object store (falls back to DB `content` column)
+- `create_skill` writes files to object store and creates SkillVersion + SkillFile DB records

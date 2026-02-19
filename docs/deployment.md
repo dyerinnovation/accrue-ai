@@ -13,9 +13,11 @@ docker compose -f docker/docker-compose.yml up
 | Service | Image/Build | Port | Depends On |
 |---------|-------------|------|------------|
 | `postgres` | `postgres:16-alpine` | 5432 | — |
-| `api` | `docker/Dockerfile.api` | 3001 | postgres (healthy) |
+| `minio` | `minio/minio:latest` | 9000, 9001 | — |
+| `minio-init` | `minio/mc:latest` | — | minio (healthy) |
+| `api` | `docker/Dockerfile.api` | 3001 | postgres (healthy), minio (healthy) |
 | `web` | `docker/Dockerfile.web` | 3000 | api |
-| `mcp-server` | `docker/Dockerfile.mcp-server` | 3002 | postgres (healthy) |
+| `mcp-server` | `docker/Dockerfile.mcp-server` | 3002 | postgres (healthy), minio (healthy) |
 
 PostgreSQL uses a health check (`pg_isready`) before dependent services start.
 
@@ -29,13 +31,19 @@ Docker Compose reads from your shell environment or a `.env` file in the `docker
 
 Default database credentials: `accrue`/`accrue` on database `accrue_ai`.
 
-### Running Just PostgreSQL
+### Running Just Infrastructure
 
 For local development without containerizing the apps:
 
 ```bash
+# PostgreSQL + MinIO (recommended)
+docker compose -f docker/docker-compose.yml up -d postgres minio minio-init
+
+# PostgreSQL only (no object store)
 docker compose -f docker/docker-compose.yml up -d postgres
 ```
+
+MinIO Console is available at http://localhost:9001 (credentials: `accrue`/`accrue123`). The `minio-init` service auto-creates the `accrue-skills` bucket.
 
 ## Dockerfiles
 
@@ -78,3 +86,9 @@ All variables from [Getting Started](./getting-started.md#environment-variables)
 - `BETTER_AUTH_SECRET` — strong random secret (32+ characters)
 - `DATABASE_URL` — production PostgreSQL connection string
 - `NEXT_PUBLIC_API_URL` — production API URL
+- `STORAGE_PROVIDER=s3` — use S3 instead of MinIO
+- `STORAGE_BUCKET` — S3 bucket name
+- `S3_REGION` — AWS region
+- `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` — AWS credentials
+
+See [storage.md](./storage.md) for detailed storage configuration.

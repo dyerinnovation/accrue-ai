@@ -8,7 +8,7 @@ Prisma 6.2 ORM layer. Exports PrismaClient singleton and all generated model typ
 
 ## Key Files
 
-- `prisma/schema.prisma` — Data model (User, Team, TeamMember, Skill, SkillVersion, SkillEval, ApiKey, WizardSession)
+- `prisma/schema.prisma` — Data model (User, Team, TeamMember, Skill, SkillVersion, SkillFile, SkillEval, ApiKey, WizardSession)
 - `prisma/seed.ts` — Database seeder
 - `prisma/migrations/` — Migration history
 - `src/index.ts` — PrismaClient singleton (global caching in dev) + type re-exports
@@ -17,8 +17,9 @@ Prisma 6.2 ORM layer. Exports PrismaClient singleton and all generated model typ
 
 - **User** — `email` (unique), `passwordHash`, has many Skills, ApiKeys, TeamMembers
 - **Team** — `slug` (unique), has many Skills, TeamMembers
-- **Skill** — `[slug, teamId]` unique constraint, `content` (@db.Text), `status` enum, `tags[]`
-- **SkillVersion** — `version` (int), `content` (@db.Text), `changelog?`
+- **Skill** — `[slug, teamId]` unique, `content` (@db.Text cached), `storagePath?`, `status` enum, `tags[]`
+- **SkillVersion** — `version` (int), `content` (@db.Text cached), `storagePath?`, `changelog?`
+- **SkillFile** — `[skillId, skillVersionId, path]` unique, `storageKey`, `size`, `contentType`
 - **SkillEval** — `prompt`, `assertions` (JSON)
 - **Enums** — `TeamRole` (OWNER/ADMIN/MEMBER/VIEWER), `SkillStatus` (DRAFT/TESTING/PUBLISHED/ARCHIVED)
 - **IDs** — `cuid()` everywhere
@@ -40,7 +41,9 @@ pnpm --filter @accrue-ai/db studio   # Open Prisma Studio UI
 
 ## Gotchas
 
-- `content` fields use `@db.Text` (not varchar) — no length limit at DB level
+- `content` fields use `@db.Text` — cached copy of SKILL.md for quick reads/search (actual files in object store)
+- `storagePath` points to object store directory (e.g., `skills/{team}/{slug}/v{version}/`)
 - `[slug, teamId]` unique constraint: null `teamId` means personal skill
+- `[skillId, skillVersionId, path]` unique constraint on SkillFile
 - `WizardSession.state` and `.messages` are `Json` type — serialized/deserialized manually
 - Always run `pnpm db:generate` before `pnpm db:migrate` — Prisma needs the client generated to create migrations

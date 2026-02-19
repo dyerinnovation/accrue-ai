@@ -2,7 +2,7 @@
 
 ## Overview
 
-Skills are defined as markdown files (SKILL.md) with YAML frontmatter. This format is the core data structure of Accrue AI — every skill in the system is stored and transmitted in this format.
+Skills are packages — directories containing a SKILL.md file plus optional supporting files (scripts, templates, examples, references). SKILL.md uses YAML frontmatter and is the entrypoint. The format follows the [Agent Skills](https://agentskills.io) standard used by Claude Code.
 
 ## Structure
 
@@ -43,8 +43,11 @@ Validated by `SkillFrontmatterSchema` in `packages/shared/src/types.ts`:
 | `description` | `string` | Yes | — | Skill description (min 1 character) |
 | `tags` | `string[]` | No | `[]` | Categorization tags |
 | `version` | `int` | No | `1` | Positive integer version number |
+| `disable-model-invocation` | `boolean` | No | — | Agent Skills: disable model calls |
+| `user-invocable` | `boolean` | No | — | Agent Skills: can be invoked by user |
+| `allowed-tools` | `string[]` | No | — | Agent Skills: tools the skill may use |
 
-Frontmatter is parsed using [gray-matter](https://github.com/jonschlinkert/gray-matter) in `packages/skill-engine/src/parseSkill.ts`.
+Frontmatter is parsed using [gray-matter](https://github.com/jonschlinkert/gray-matter) in `packages/skill-engine/src/parseSkill.ts`. The schema uses `.passthrough()` to preserve any additional fields (e.g., Agent Skills standard fields).
 
 ## Sections
 
@@ -79,6 +82,40 @@ Enforced by `validateSkill()` in `packages/skill-engine/src/validateSkill.ts`:
 4. `## Purpose` section must exist
 5. `## Instructions` section must exist
 6. Missing recommended sections generate warnings
+
+## Skill as Directory
+
+Skills are stored as directories in the object store:
+
+```
+skills/{teamSlug|_personal}/{skillSlug}/v{version}/
+├── SKILL.md              # Main skill definition (required)
+├── scripts/              # Executable scripts (optional)
+│   └── run.py
+├── templates/            # Templates (optional)
+│   └── template.md
+├── examples/             # Example input/output (optional)
+│   └── sample.md
+└── references/           # Reference documentation (optional)
+    └── guide.md
+```
+
+- `_personal` prefix for skills with no team
+- Each version is a complete snapshot (no deltas)
+- `SKILL.md` is always the entrypoint
+- See [storage.md](./storage.md) for object store details
+
+## Export/Import
+
+Skills are exported as tar.gz archives containing the full directory structure. The archive format is compatible with the Agent Skills standard used by Claude Code, so exported skills can be dropped into `~/.claude/skills/`.
+
+```bash
+# Export via API
+GET /api/skills/:id/download  → skill-name-v1.tar.gz
+
+# Import via API
+POST /api/skills/import       ← multipart/form-data with archive field
+```
 
 ## Example: skill-creator
 

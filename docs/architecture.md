@@ -11,20 +11,20 @@ Accrue AI is a platform for creating, iterating, testing, and sharing reusable A
                   └──────┬───────┘
                          │ HTTP (React Query)
                          ▼
-┌──────────────┐  ┌──────────────┐  ┌──────────────────┐
-│  AI Agent    │  │   API        │  │   PostgreSQL 16   │
-│  (Claude)    │  │   :3001      │  │   :5432           │
-│              │  │  Express 4   │  └────────▲──────────┘
-│              │  └──────┬───────┘           │ Prisma ORM
-│              │         │                   │
-│  ┌───────────┴──┐      └───────────────────┤
+┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  ┌────────────────┐
+│  AI Agent    │  │   API        │  │   PostgreSQL 16   │  │  MinIO / S3    │
+│  (Claude)    │  │   :3001      │  │   :5432           │  │  :9000         │
+│              │  │  Express 4   │  └────────▲──────────┘  └────────▲───────┘
+│              │  └──────┬───────┘           │ Prisma ORM           │ S3 SDK
+│              │         │                   │                      │
+│  ┌───────────┴──┐      └───────────────────┼──────────────────────┘
 │  │  MCP Server  │                          │
 │  │  (stdio)     ├──────────────────────────┘
 │  └──────────────┘
 └──────────────────┘
 ```
 
-Both the API and MCP Server use the shared skill-engine for all skill operations and Prisma for database access. The Claude API (via claude-client) is used for AI-powered skill iteration.
+Both the API and MCP Server use the shared skill-engine for all skill operations, Prisma for database access, and the storage provider for skill file access. PostgreSQL stores metadata (users, teams, skill records) while MinIO/S3 stores skill files (SKILL.md + scripts + assets). The Claude API (via claude-client) is used for AI-powered skill iteration.
 
 ## Package Dependency Graph
 

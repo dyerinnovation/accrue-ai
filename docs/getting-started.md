@@ -21,8 +21,8 @@ cp .env.example .env
 # Install dependencies
 pnpm install
 
-# Start PostgreSQL
-docker compose -f docker/docker-compose.yml up -d postgres
+# Start PostgreSQL and MinIO (object store)
+docker compose -f docker/docker-compose.yml up -d postgres minio minio-init
 
 # Generate Prisma client and run migrations
 pnpm db:generate
@@ -44,6 +44,8 @@ After `pnpm dev`, the following services are running:
 | Web UI | http://localhost:3000 | Next.js frontend |
 | API | http://localhost:3001/api/health | Express REST API |
 | MCP Server | stdio | Model Context Protocol server |
+| MinIO S3 API | http://localhost:9000 | Object store (skill files) |
+| MinIO Console | http://localhost:9001 | MinIO web UI (accrue/accrue123) |
 
 ## Running Individual Apps
 
@@ -69,7 +71,12 @@ Add to your `claude_desktop_config.json`:
       "command": "node",
       "args": ["<path-to-repo>/apps/mcp-server/dist/index.js"],
       "env": {
-        "DATABASE_URL": "postgresql://accrue:accrue@localhost:5432/accrue_ai"
+        "DATABASE_URL": "postgresql://accrue:accrue@localhost:5432/accrue_ai",
+        "STORAGE_PROVIDER": "minio",
+        "MINIO_ENDPOINT": "http://localhost:9000",
+        "MINIO_ACCESS_KEY": "accrue",
+        "MINIO_SECRET_KEY": "accrue123",
+        "STORAGE_BUCKET": "accrue-skills"
       }
     }
   }
@@ -139,3 +146,11 @@ pnpm test:ci
 | `NEXT_PUBLIC_API_URL` | No | `http://localhost:3001/api` | API URL for the frontend |
 | `NODE_ENV` | No | `development` | Environment |
 | `LOG_LEVEL` | No | `debug` | Log verbosity |
+| `STORAGE_PROVIDER` | No | `minio` | `"minio"` or `"s3"` |
+| `STORAGE_BUCKET` | No | `accrue-skills` | Object store bucket name |
+| `MINIO_ENDPOINT` | For MinIO | — | MinIO S3 API URL (e.g., `http://localhost:9000`) |
+| `MINIO_ACCESS_KEY` | For MinIO | — | MinIO root user |
+| `MINIO_SECRET_KEY` | For MinIO | — | MinIO root password |
+| `S3_REGION` | For S3 | — | AWS region |
+| `AWS_ACCESS_KEY_ID` | For S3 | — | AWS access key |
+| `AWS_SECRET_ACCESS_KEY` | For S3 | — | AWS secret key |

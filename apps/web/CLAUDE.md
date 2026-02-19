@@ -11,7 +11,7 @@ Next.js 15 App Router frontend with React 19, Tailwind CSS 4, and React Query. P
 - `src/app/layout.tsx` — Root layout (HTML, body, Providers wrapper)
 - `src/app/providers.tsx` — React Query `QueryClientProvider`
 - `src/app/page.tsx` — Landing page
-- `src/lib/api.ts` — Fetch wrapper (auto Bearer auth from `localStorage`)
+- `src/lib/api.ts` — Fetch wrapper (auto Bearer auth from `localStorage`, `uploadFiles()`, `download()`)
 - `src/app/(auth)/` — Login + Register pages (public)
 - `src/app/(app)/` — Dashboard, Skills pages (authenticated)
 - `src/app/globals.css` — Tailwind base styles
@@ -43,3 +43,6 @@ pnpm --filter @accrue-ai/web lint    # next lint
 - Do NOT import from `@accrue-ai/db`, `auth`, `claude-client`, or `skill-engine` — they contain Node.js-only code
 - `localStorage` is client-only — guarded with `typeof window !== "undefined"` (see `api.ts`)
 - `NEXT_PUBLIC_API_URL` must be set at build time for Next.js to embed it
+- Skill detail page has file browser, upload, and download functionality
+- File uploads use `api.uploadFiles()` (multipart/form-data via FormData)
+- Skill downloads use `api.download()` (returns Blob, creates object URL for download)

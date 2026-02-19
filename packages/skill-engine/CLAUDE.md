@@ -13,14 +13,14 @@ Core skill lifecycle library: parse, create, validate, iterate, compare, package
 - `src/validateSkill.ts` — Validate content -> `{ valid, errors[], warnings[] }`
 - `src/iterateSkill.ts` — AI-powered iteration (ClaudeClient + system prompt)
 - `src/compareVersions.ts` — Compare two versions via eval prompts
-- `src/packageSkill.ts` — Export skill as SkillBundle JSON
-- `src/importSkill.ts` — Import from SkillBundle -> `ImportSkillResult`
+- `src/packageSkill.ts` — Export skill as tar.gz archive from object store (+ legacy JSON)
+- `src/importSkill.ts` — Import from tar.gz archive to object store (+ legacy JSON)
 - `src/types.ts` — Input/output types for all operations
 - `src/index.ts` — Barrel export of all 7 functions + types
 
 ## Conventions
 
-- Functions are pure where possible (except `iterateSkill` which calls Claude API)
+- Functions are pure where possible (except `iterateSkill` which calls Claude API, and `packageSkill`/`importSkill` which use StorageProvider)
 - gray-matter for YAML frontmatter parsing
 - Validation: errors = must fix, warnings = should fix
 - Required sections: Purpose, Instructions
@@ -45,3 +45,6 @@ pnpm --filter @accrue-ai/skill-engine test    # Run vitest
 - `parseSkill` section extraction is case-insensitive for heading matching
 - `SKILL_TEMPLATE` uses `{{placeholder}}` — double curly braces, NOT template literals
 - `createSkill` does string replacement on the template, not programmatic markdown generation
+- `createSkill` returns `CreatedSkillOutput` with `files: SkillFileEntry[]` (SKILL.md + any supporting files)
+- `packageSkill` and `importSkill` have both archive-based (StorageProvider) and legacy JSON variants
+- `tar-stream` is used for archive creation/extraction — NOT the `tar` npm package
