@@ -114,6 +114,9 @@ importers:
       '@accrue-ai/skill-engine':
         specifier: workspace:*
         version: link:../../packages/skill-engine
+      '@accrue-ai/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
       '@modelcontextprotocol/sdk':
         specifier: ^1.4.0
         version: 1.26.0(zod@3.25.76)
