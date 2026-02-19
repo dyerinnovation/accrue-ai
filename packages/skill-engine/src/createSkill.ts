@@ -1,16 +1,9 @@
 import { SKILL_TEMPLATE } from "@accrue-ai/shared";
 import { slugify } from "@accrue-ai/shared";
-import type { CreateSkillInput } from "./types.js";
+import type { CreateSkillInput, CreatedSkillOutput } from "./types.js";
+import type { SkillFileEntry } from "@accrue-ai/shared";
 
-export interface CreatedSkill {
-  name: string;
-  slug: string;
-  description: string;
-  content: string;
-  tags: string[];
-}
-
-export function createSkill(input: CreateSkillInput): CreatedSkill {
+export function createSkill(input: CreateSkillInput): CreatedSkillOutput {
   const slug = slugify(input.name);
   const tags = input.tags ?? [];
 
@@ -25,11 +18,18 @@ export function createSkill(input: CreateSkillInput): CreatedSkill {
     .replace("{{examples}}", "Add input/output examples here.")
     .replace("{{references}}", "Add reference links here.");
 
+  // SKILL.md is always the first file entry
+  const files: SkillFileEntry[] = [
+    { path: "SKILL.md", content, contentType: "text/markdown" },
+    ...(input.files ?? []),
+  ];
+
   return {
     name: input.name,
     slug,
     description: input.description,
     content,
     tags,
+    files,
   };
 }

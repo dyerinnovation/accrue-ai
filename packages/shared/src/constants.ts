@@ -66,6 +66,9 @@ export const API_ROUTES = {
     ITERATE: "/api/skills/:id/iterate",
     EXPORT: "/api/skills/:id/export",
     IMPORT: "/api/skills/import",
+    FILES: "/api/skills/:id/files",
+    FILE: "/api/skills/:id/files/*",
+    DOWNLOAD: "/api/skills/:id/download",
   },
   WIZARD: {
     START: "/api/wizard/start",

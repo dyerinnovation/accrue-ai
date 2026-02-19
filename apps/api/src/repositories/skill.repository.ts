@@ -14,7 +14,7 @@ export const skillRepository = {
   async findById(id: string) {
     return prisma.skill.findUnique({
       where: { id },
-      include: { author: { select: { id: true, email: true, name: true } }, team: true },
+      include: { author: { select: { id: true, email: true, name: true } }, team: true, files: true },
     });
   },
 
@@ -52,6 +52,7 @@ export const skillRepository = {
     slug: string;
     description: string;
     content: string;
+    storagePath?: string;
     authorId: string;
     teamId?: string;
     tags?: string[];
@@ -66,6 +67,7 @@ export const skillRepository = {
     slug: string;
     description: string;
     content: string;
+    storagePath: string;
     status: SkillStatus;
     tags: string[];
     isPublic: boolean;
@@ -83,6 +85,7 @@ export const skillRepository = {
     return prisma.skillVersion.findMany({
       where: { skillId },
       orderBy: { version: "desc" },
+      include: { files: true },
     });
   },
 
@@ -90,9 +93,45 @@ export const skillRepository = {
     skillId: string;
     version: number;
     content: string;
+    storagePath?: string;
     changelog?: string;
     metrics?: Record<string, unknown>;
   }) {
     return prisma.skillVersion.create({ data });
+  },
+
+  async createFile(data: {
+    skillId: string;
+    skillVersionId?: string;
+    path: string;
+    storageKey: string;
+    size: number;
+    contentType?: string;
+  }) {
+    return prisma.skillFile.create({ data });
+  },
+
+  async createFiles(files: Array<{
+    skillId: string;
+    skillVersionId?: string;
+    path: string;
+    storageKey: string;
+    size: number;
+    contentType?: string;
+  }>) {
+    return prisma.skillFile.createMany({ data: files });
+  },
+
+  async getFiles(skillId: string, skillVersionId?: string) {
+    return prisma.skillFile.findMany({
+      where: { skillId, ...(skillVersionId ? { skillVersionId } : {}) },
+      orderBy: { path: "asc" },
+    });
+  },
+
+  async getFile(skillId: string, path: string) {
+    return prisma.skillFile.findFirst({
+      where: { skillId, path, skillVersionId: null },
+    });
   },
 };

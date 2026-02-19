@@ -40,4 +40,32 @@ describe("createSkill", () => {
     expect(result.content).toContain("Describe the purpose");
     expect(result.tags).toEqual([]);
   });
+
+  it("always includes SKILL.md as first file entry", () => {
+    const result = createSkill({
+      name: "File Skill",
+      description: "A skill with files",
+    });
+
+    expect(result.files).toHaveLength(1);
+    expect(result.files[0]!.path).toBe("SKILL.md");
+    expect(result.files[0]!.contentType).toBe("text/markdown");
+    expect(result.files[0]!.content).toBe(result.content);
+  });
+
+  it("appends additional files to file entries", () => {
+    const result = createSkill({
+      name: "Script Skill",
+      description: "A skill with scripts",
+      files: [
+        { path: "scripts/run.py", content: "print('hello')", contentType: "text/x-python" },
+        { path: "templates/output.md", content: "# Output", contentType: "text/markdown" },
+      ],
+    });
+
+    expect(result.files).toHaveLength(3);
+    expect(result.files[0]!.path).toBe("SKILL.md");
+    expect(result.files[1]!.path).toBe("scripts/run.py");
+    expect(result.files[2]!.path).toBe("templates/output.md");
+  });
 });

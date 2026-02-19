@@ -1,5 +1,5 @@
 {
-  "name": "@accrue-ai/skill-engine",
+  "name": "@accrue-ai/storage",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/index.js",
@@ -12,17 +12,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@accrue-ai/db": "workspace:*",
     "@accrue-ai/shared": "workspace:*",
-    "@accrue-ai/storage": "workspace:*",
-    "@accrue-ai/claude-client": "workspace:*",
-    "gray-matter": "^4.0.3",
-    "tar-stream": "^3.1.7",
+    "@aws-sdk/client-s3": "^3.700.0",
+    "@aws-sdk/s3-request-presigner": "^3.700.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "@types/tar-stream": "^3.1.3",
     "typescript": "^5.7.0",
     "vitest": "^2.1.0"
   }
