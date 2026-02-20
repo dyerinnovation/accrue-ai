@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -5,7 +6,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-gray-50">
       <header className="border-b bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
-          <Link href="/dashboard" className="text-xl font-bold text-blue-600">Accrue AI</Link>
+          <Link href="/dashboard" className="flex items-center gap-2 text-xl font-bold text-blue-600">
+            <Image src="/logo.png" alt="" width={28} height={28} />
+            Accrue AI
+          </Link>
           <nav className="flex items-center gap-6 text-sm font-medium text-gray-600">
             <Link href="/dashboard" className="hover:text-blue-600">Dashboard</Link>
             <Link href="/skills" className="hover:text-blue-600">Skills</Link>
