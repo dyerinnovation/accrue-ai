@@ -1,6 +1,10 @@
-# Accrue AI
+<p align="center">
+  <img src="assets/logo.png" alt="Accrue AI" width="200" />
+</p>
 
-Build, iterate, test, and share reusable AI agent skills that compound over time.
+<h1 align="center">Accrue AI</h1>
+
+<p align="center">Build, iterate, test, and share reusable AI agent skills that compound over time.</p>
 
 Accrue AI is a platform for managing the full lifecycle of AI skills — from initial creation through testing, iteration, and publishing. Skills are defined in a portable markdown format (SKILL.md) and can be accessed via a web UI, REST API, or Model Context Protocol (MCP) server for direct AI agent integration.
 

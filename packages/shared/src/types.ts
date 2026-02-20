@@ -6,7 +6,11 @@ export const SkillFrontmatterSchema = z.object({
   description: z.string().min(1),
   tags: z.array(z.string()).default([]),
   version: z.number().int().positive().default(1),
-});
+  // Agent Skills standard fields (optional — used when installed as Claude Code skill)
+  "disable-model-invocation": z.boolean().optional(),
+  "user-invocable": z.boolean().optional(),
+  "allowed-tools": z.array(z.string()).optional(),
+}).passthrough();
 
 export type SkillFrontmatter = z.infer<typeof SkillFrontmatterSchema>;
 
@@ -26,6 +30,19 @@ export interface SkillBundle {
   metadata: SkillFrontmatter;
   content: string;
   assets: Record<string, string>;
+  version: number;
+  exportedAt: string;
+}
+
+export interface SkillFileEntry {
+  path: string;
+  content: Buffer | string;
+  contentType?: string;
+}
+
+export interface SkillPackage {
+  metadata: SkillFrontmatter;
+  files: Record<string, string | Buffer>;
   version: number;
   exportedAt: string;
 }

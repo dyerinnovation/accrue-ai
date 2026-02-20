@@ -8,6 +8,7 @@
   "references": [
     { "path": "../shared" },
     { "path": "../db" },
+    { "path": "../storage" },
     { "path": "../claude-client" }
   ]
 }

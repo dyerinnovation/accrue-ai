@@ -1,0 +1,11 @@
+{
+  "name": "accrue-ai",
+  "description": "AI skill creation and management platform. Create, iterate, test, and share reusable AI agent skills following the Agent Skills open standard.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Dyer Innovation"
+  },
+  "homepage": "https://github.com/dyerinnovation/accrue-ai",
+  "repository": "https://github.com/dyerinnovation/accrue-ai",
+  "license": "MIT"
+}

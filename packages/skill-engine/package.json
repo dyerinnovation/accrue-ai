@@ -14,12 +14,15 @@
   "dependencies": {
     "@accrue-ai/db": "workspace:*",
     "@accrue-ai/shared": "workspace:*",
+    "@accrue-ai/storage": "workspace:*",
     "@accrue-ai/claude-client": "workspace:*",
     "gray-matter": "^4.0.3",
+    "tar-stream": "^3.1.7",
     "zod": "^3.24.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "@types/tar-stream": "^3.1.3",
     "typescript": "^5.7.0",
     "vitest": "^2.1.0"
   }

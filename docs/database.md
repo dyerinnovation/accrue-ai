@@ -15,8 +15,9 @@ The Prisma schema is at `packages/db/prisma/schema.prisma`.
 | **User** | Registered users | `email` (unique), `passwordHash`, `name?` |
 | **Team** | Organizations | `name`, `slug` (unique) |
 | **TeamMember** | User-Team join table | `role` (OWNER/ADMIN/MEMBER/VIEWER), unique on `[userId, teamId]` |
-| **Skill** | AI skill definitions | `name`, `slug`, `content` (SKILL.md text), `status`, `version`, `tags[]`, `isPublic` |
-| **SkillVersion** | Version history | `version` (int), `content`, `changelog?`, `metrics?` (JSON) |
+| **Skill** | AI skill definitions | `name`, `slug`, `content` (cached SKILL.md), `storagePath?`, `status`, `version`, `tags[]`, `isPublic` |
+| **SkillVersion** | Version history | `version` (int), `content`, `storagePath?`, `changelog?`, `metrics?` (JSON) |
+| **SkillFile** | File manifest | `path` (relative), `storageKey` (full object key), `size`, `contentType` |
 | **SkillEval** | Evaluation definitions | `prompt`, `expected?`, `assertions` (JSON), `files?` (JSON) |
 | **ApiKey** | API access keys | `key` (unique, prefixed `ak_`), `name`, `expiresAt?` |
 | **WizardSession** | Skill creation wizard state | `step`, `state` (JSON), `messages` (JSON), `draftSkill?` (JSON) |
@@ -34,11 +35,16 @@ User ──< Skill >── Team (optional)
 User ──< ApiKey
 Skill ──< SkillVersion
 Skill ──< SkillEval
+Skill ──< SkillFile
+SkillVersion ──< SkillFile
 ```
 
 - A Skill's `[slug, teamId]` pair is unique (allows same slug across teams)
+- A SkillFile's `[skillId, skillVersionId, path]` triple is unique
 - `teamId` is nullable — null means a personal skill
-- `content` and SkillVersion `content` use `@db.Text` (not varchar)
+- `content` and SkillVersion `content` use `@db.Text` — cached copy of SKILL.md for quick reads/search
+- `storagePath` points to the object store directory (e.g., `skills/{team}/{slug}/v{version}/`)
+- Actual skill files live in MinIO/S3; see [storage.md](./storage.md)
 
 ### IDs
 

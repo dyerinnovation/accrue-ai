@@ -68,7 +68,11 @@ All routes are defined in `packages/shared/src/constants.ts` (`API_ROUTES`) and 
 | POST | `/api/skills/:id/publish` | Yes | Publish a skill (validates first) |
 | POST | `/api/skills/:id/iterate` | Yes | AI-powered iteration (`feedback`) |
 | GET | `/api/skills/:id/export` | Yes | Export as SkillBundle JSON |
-| POST | `/api/skills/import` | Yes | Import from SkillBundle JSON |
+| POST | `/api/skills/import` | Yes | Import from SkillBundle JSON or tar.gz archive |
+| POST | `/api/skills/:id/files` | Yes | Upload file(s) to a skill (multipart/form-data) |
+| GET | `/api/skills/:id/files` | Yes | List files in a skill |
+| GET | `/api/skills/:id/files/*` | Yes | Download a single file by path |
+| GET | `/api/skills/:id/download` | Yes | Download entire skill as tar.gz archive |
 
 ### Wizard
 
@@ -100,6 +104,50 @@ All routes are defined in `packages/shared/src/constants.ts` (`API_ROUTES`) and 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | GET | `/api/health` | No | Health check -> `{ status: "ok", timestamp: "..." }` |
+
+### File Management
+
+#### Upload Files
+
+```
+POST /api/skills/:id/files
+Content-Type: multipart/form-data
+```
+
+Upload one or more files to a skill. Files are stored in the object store under the skill's storage path and recorded in the SkillFile table. Maximum 20 files, 10MB each.
+
+#### List Files
+
+```
+GET /api/skills/:id/files
+```
+
+Returns the file manifest for a skill: path, size, content type for each file.
+
+#### Download Single File
+
+```
+GET /api/skills/:id/files/scripts/run.py
+```
+
+Downloads a single file from the skill's object store. The path after `/files/` is the relative file path.
+
+#### Download Skill Package
+
+```
+GET /api/skills/:id/download
+```
+
+Downloads the entire skill as a tar.gz archive containing SKILL.md and all supporting files. The archive follows the [Agent Skills](https://agentskills.io) standard format.
+
+#### Import from Archive
+
+```
+POST /api/skills/import
+Content-Type: multipart/form-data
+```
+
+Import a skill from a tar.gz archive (field name: `archive`). Also supports legacy JSON body import.
 
 ## Pagination
 

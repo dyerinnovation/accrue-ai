@@ -38,13 +38,25 @@ Compares two skill versions by running eval prompts against both and scoring res
 
 **Returns:** `{ versionA, versionB, results: [{ evalPrompt, scoreA, scoreB, notes }], winner: "A" | "B" | "tie", summary }`
 
-### `packageSkill(content: string): SkillBundle`
+### `packageSkill(storage: StorageProvider, storagePath: string): Promise<Buffer>`
 
-Exports a skill as a portable JSON bundle containing metadata, content, assets, version, and export timestamp.
+Exports a skill as a tar.gz archive from the object store. Lists all files under `storagePath`, reads each one, and packs them into a gzipped tar archive. The archive structure matches the [Agent Skills](https://agentskills.io) standard used by Claude Code.
 
-### `importSkill(bundle: SkillBundle): ImportSkillResult`
+**Returns:** `Buffer` containing the tar.gz archive.
 
-Imports a skill from a SkillBundle, validating the content and reconstructing the skill.
+### `packageSkillJson(content: string): SkillPackage`
+
+Legacy JSON export. Parses SKILL.md content and returns a `SkillPackage` object with metadata, files map, version, and export timestamp.
+
+### `importSkill(archive: Buffer, storage: StorageProvider, targetPath: string): Promise<ImportSkillResult>`
+
+Imports a skill from a tar.gz archive. Extracts the archive, writes each file to the object store under `targetPath`, and returns the parsed metadata and file manifest.
+
+**Returns:** `{ metadata, content, files: SkillFileEntry[], version, changelog? }`
+
+### `importSkillJson(bundle: SkillPackage): ImportSkillResult`
+
+Legacy JSON import. Reconstructs a skill from a `SkillPackage` object.
 
 ## Skill Lifecycle State Machine
 
@@ -64,5 +76,7 @@ DRAFT  ──>  TESTING  ──>  PUBLISHED  ──>  ARCHIVED
 | `@accrue-ai/shared` | Types, `SkillFrontmatterSchema`, `SKILL_TEMPLATE`, constants |
 | `@accrue-ai/db` | Prisma for skill/version persistence |
 | `@accrue-ai/claude-client` | AI iteration via Claude API |
+| `@accrue-ai/storage` | Object store access for package/import operations |
 | `gray-matter` | YAML frontmatter parsing |
+| `tar-stream` | tar.gz archive creation and extraction |
 | `zod` | Input validation |

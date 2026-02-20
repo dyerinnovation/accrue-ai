@@ -13,6 +13,7 @@
   "dependencies": {
     "@accrue-ai/db": "workspace:*",
     "@accrue-ai/shared": "workspace:*",
+    "@accrue-ai/storage": "workspace:*",
     "@accrue-ai/skill-engine": "workspace:*",
     "@accrue-ai/claude-client": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.4.0",

@@ -52,6 +52,7 @@ model Skill {
   slug          String
   description   String
   content       String         @db.Text
+  storagePath   String?
   version       Int            @default(1)
   status        SkillStatus    @default(DRAFT)
   authorId      String
@@ -60,6 +61,7 @@ model Skill {
   team          Team?          @relation(fields: [teamId], references: [id])
   versions      SkillVersion[]
   evals         SkillEval[]
+  files         SkillFile[]
   tags          String[]
   isPublic      Boolean        @default(false)
   metadata      Json?
@@ -76,14 +78,30 @@ enum SkillStatus {
 }
 
 model SkillVersion {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   skillId     String
   version     Int
-  content     String   @db.Text
+  content     String      @db.Text
+  storagePath String?
   changelog   String?
   metrics     Json?
-  skill       Skill    @relation(fields: [skillId], references: [id])
-  createdAt   DateTime @default(now())
+  skill       Skill       @relation(fields: [skillId], references: [id])
+  files       SkillFile[]
+  createdAt   DateTime    @default(now())
+}
+
+model SkillFile {
+  id              String        @id @default(cuid())
+  skillId         String
+  skillVersionId  String?
+  path            String
+  storageKey      String
+  size            Int
+  contentType     String        @default("text/plain")
+  skill           Skill         @relation(fields: [skillId], references: [id])
+  skillVersion    SkillVersion? @relation(fields: [skillVersionId], references: [id])
+  createdAt       DateTime      @default(now())
+  @@unique([skillId, skillVersionId, path])
 }
 
 model SkillEval {
